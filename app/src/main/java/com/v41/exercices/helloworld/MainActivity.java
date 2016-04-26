@@ -11,10 +11,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 
+import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int BLUETOOTH_DISCOVERABLE_DURATION = 300;
     private TextView bluetoothStatus;
     private TextView listKnownDevices;
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
@@ -31,7 +34,12 @@ public class MainActivity extends AppCompatActivity {
         listKnownDevices = (TextView)findViewById(R.id.listKnownDevices);
         adapter = BluetoothAdapter.getDefaultAdapter();
         devices = new TreeMap<>();
+        Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
+        Iterator<BluetoothDevice> it = devicesss.iterator();
+        while(it.hasNext()) {
+            String name = it.next().getName();
+        }
     }
 
     @Override
@@ -48,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else{
                 bluetoothStatus.setText("Bluetooth enabled");
-                findBluetoothDevice();
+                enabledDeviceDiscovery();
             }
         }
     }
@@ -57,13 +65,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==REQUEST_BLUETOOTH_ENABLE && resultCode==RESULT_OK){
-            bluetoothStatus.setText("Bluetooth enabled");
-            findBluetoothDevice();
+        if(requestCode==REQUEST_BLUETOOTH_ENABLE){
+            if(resultCode==RESULT_OK){
+                bluetoothStatus.setText("Bluetooth enabled");
+                enabledDeviceDiscovery();
+            } else {
+                bluetoothStatus.setText("Bluetooth is disabled");
+            }
         }
-        else{
-            bluetoothStatus.setText("Bluetooth is disabled");
+
+
+        if(requestCode==BLUETOOTH_DISCOVERABLE_DURATION){
+            if(resultCode!=RESULT_CANCELED){
+                bluetoothStatus.setText("Discoverability enabled");
+                findBluetoothDevice();
+            } else {
+                bluetoothStatus.setText("Discoverability disabled");
+            }
+
         }
+    }
+
+    private void enabledDeviceDiscovery(){
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, BLUETOOTH_DISCOVERABLE_DURATION);
+        startActivityForResult(discoverableIntent, BLUETOOTH_DISCOVERABLE_DURATION);
     }
 
     private void findBluetoothDevice(){
