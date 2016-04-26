@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 
 import java.util.Iterator;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         listKnownDevices = (TextView)findViewById(R.id.listKnownDevices);
         adapter = BluetoothAdapter.getDefaultAdapter();
         devices = new TreeMap<>();
+
         Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
         Iterator<BluetoothDevice> it = devicesss.iterator();
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode!=RESULT_CANCELED){
                 bluetoothStatus.setText("Discoverability enabled");
                 findBluetoothDevice();
+                adapter.startDiscovery();
             } else {
                 bluetoothStatus.setText("Discoverability disabled");
             }
@@ -117,8 +120,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDeviceList(){
         String deviceList = "";
-        for(int i=0;i<devices.size();i++){
-            deviceList += devices.get(i).toString() + "\n";
+        final NavigableSet<String> sets = devices.navigableKeySet();
+        Iterator<String> it = sets.iterator();
+        while(it.hasNext()){
+            deviceList += devices.get(it.next()) + "\n";
         }
         listKnownDevices.setText(deviceList);
     }
