@@ -51,33 +51,14 @@ public class MainActivity extends AppCompatActivity {
 
         devices = new ArrayList<String>();
 
-        arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_spinner_item, devices);
+        arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, devices);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
+        arrayAdapter.add("TEST");
 
         adapter = BluetoothAdapter.getDefaultAdapter();
-        try {
-            server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
-        String bondedDevices = "";
-        Iterator<BluetoothDevice> it = devicesss.iterator();
-
-        try {
-            socket = it.next().createRfcommSocketToServiceRecord(uuid);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        while(it.hasNext()) {
-            bondedDevices += it.next().getName() + "\n";
-        }
-
-        listBondedDevices.setText(bondedDevices);
     }
 
     @Override
@@ -97,6 +78,34 @@ public class MainActivity extends AppCompatActivity {
                 enabledDeviceDiscovery();
             }
         }
+
+        Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
+
+        String bondedDevices = "";
+        Iterator<BluetoothDevice> it = devicesss.iterator();
+        try {
+            server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            socket = it.next().createRfcommSocketToServiceRecord(uuid);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while(it.hasNext()) {
+            bondedDevices += it.next().getName() + "\n";
+        }
+
+        listBondedDevices.setText(bondedDevices);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     @Override
@@ -114,16 +123,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
         if(requestCode==BLUETOOTH_DISCOVERABLE_DURATION){
             if(resultCode!=RESULT_CANCELED){
                 bluetoothStatus.setText("Discoverability enabled");
                 findBluetoothDevice();
+                if(adapter.isDiscovering())
+                    adapter.cancelDiscovery();
                 adapter.startDiscovery();
             } else {
                 bluetoothStatus.setText("Discoverability disabled");
             }
-
         }
     }
 
@@ -142,12 +151,13 @@ public class MainActivity extends AppCompatActivity {
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     devices.add(device.getName());
-                    updateDeviceList();
+                    arrayAdapter.add(device.getName());
                 }
             }
         };
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(receiver,filter);
+
     }
 
     @Override
@@ -156,12 +166,4 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private void updateDeviceList(){
-        String deviceList = "";
-        //for(int i=0; i<devices.size();i++){
-            //deviceList += devices.get(i) + "\n";
-       // }
-        //listKnownDevices.setText(deviceList);
-
-    }
 }
