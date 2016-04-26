@@ -2,6 +2,8 @@ package com.v41.exercices.helloworld;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,37 +13,62 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int BLUETOOTH_DISCOVERABLE_DURATION = 300;
     private TextView bluetoothStatus;
     private TextView listKnownDevices;
+    private TextView listBondedDevices;
+    private BluetoothSocket socket;
+    private BluetoothServerSocket server;
+
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
     private TreeMap<String,String> devices;
     private BroadcastReceiver receiver;
+    UUID uuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        uuid = new UUID(1024L,128L);
 
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
         listKnownDevices = (TextView)findViewById(R.id.listKnownDevices);
+        listBondedDevices = (TextView)findViewById(R.id.listBondedDevices);
+
         adapter = BluetoothAdapter.getDefaultAdapter();
+        try {
+            server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         devices = new TreeMap<>();
 
         Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
+        String bondedDevices = "";
         Iterator<BluetoothDevice> it = devicesss.iterator();
-        while(it.hasNext()) {
-            String name = it.next().getName();
+
+        try {
+            socket = it.next().createRfcommSocketToServiceRecord(uuid);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        while(it.hasNext()) {
+            bondedDevices += it.next().getName() + "\n";
+        }
+
+        listBondedDevices.setText(bondedDevices);
     }
 
     @Override
@@ -70,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==REQUEST_BLUETOOTH_ENABLE){
             if(resultCode==RESULT_OK){
                 bluetoothStatus.setText("Bluetooth enabled");
-                enabledDeviceDiscovery();
+                if(!adapter.isDiscovering()) {
+                    enabledDeviceDiscovery();
+                }
             } else {
                 bluetoothStatus.setText("Bluetooth is disabled");
             }
