@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
     private TreeMap<String,String> devices;
+    private BroadcastReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==REQUEST_BLUETOOTH_ENABLE || requestCode==RESULT_OK){
+        if(requestCode==REQUEST_BLUETOOTH_ENABLE && resultCode==RESULT_OK){
             bluetoothStatus.setText("Bluetooth enabled");
             findBluetoothDevice();
         }
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void findBluetoothDevice(){
 
-        final BroadcastReceiver receiver = new BroadcastReceiver() {
+        receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -80,5 +81,11 @@ public class MainActivity extends AppCompatActivity {
         };
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(receiver,filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 }
