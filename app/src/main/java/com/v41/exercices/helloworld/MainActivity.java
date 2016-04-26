@@ -10,28 +10,32 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.NavigableSet;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int BLUETOOTH_DISCOVERABLE_DURATION = 300;
     private TextView bluetoothStatus;
-    private TextView listKnownDevices;
+    //private TextView listKnownDevices;
+    private Spinner spinner;
+    private ArrayAdapter<String> arrayAdapter;
     private TextView listBondedDevices;
+
     private BluetoothSocket socket;
     private BluetoothServerSocket server;
 
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
-    private TreeMap<String,String> devices;
+    private List<String> devices;
     private BroadcastReceiver receiver;
     UUID uuid;
 
@@ -42,8 +46,14 @@ public class MainActivity extends AppCompatActivity {
         uuid = new UUID(1024L,128L);
 
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
-        listKnownDevices = (TextView)findViewById(R.id.listKnownDevices);
+        spinner = (Spinner) findViewById(R.id.spinner);
         listBondedDevices = (TextView)findViewById(R.id.listBondedDevices);
+
+        devices = new ArrayList<String>();
+
+        arrayAdapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_spinner_item, devices);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(arrayAdapter);
 
         adapter = BluetoothAdapter.getDefaultAdapter();
         try {
@@ -51,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        devices = new TreeMap<>();
 
         Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
@@ -132,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    devices.put(device.getAddress(),device.getName());
+                    devices.add(device.getName());
                     updateDeviceList();
                 }
             }
@@ -149,11 +158,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDeviceList(){
         String deviceList = "";
-        final NavigableSet<String> sets = devices.navigableKeySet();
-        Iterator<String> it = sets.iterator();
-        while(it.hasNext()){
-            deviceList += devices.get(it.next()) + "\n";
-        }
-        listKnownDevices.setText(deviceList);
+        //for(int i=0; i<devices.size();i++){
+            //deviceList += devices.get(i) + "\n";
+       // }
+        //listKnownDevices.setText(deviceList);
+
     }
 }
