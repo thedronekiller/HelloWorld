@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -18,7 +16,7 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity {
 
     private TextView bluetoothStatus;
-    private ListView listKnownDevices;
+    private TextView listKnownDevices;
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
     private TreeMap<String,String> devices;
@@ -30,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
-        listKnownDevices = (ListView)findViewById(R.id.listKnownDevices);
+        listKnownDevices = (TextView)findViewById(R.id.listKnownDevices);
         adapter = BluetoothAdapter.getDefaultAdapter();
         devices = new TreeMap<>();
+
     }
 
     @Override
@@ -76,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     devices.put(device.getAddress(),device.getName());
+                    updateDeviceList();
                 }
             }
         };
@@ -87,5 +87,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+    }
+
+    private void updateDeviceList(){
+        String deviceList = "";
+        for(int i=0;i<devices.size();i++){
+            deviceList += devices.get(i).toString() + "\n";
+        }
+        listKnownDevices.setText(deviceList);
     }
 }
