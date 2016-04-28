@@ -41,7 +41,8 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Bonded devices:"
         android:id="@+id/textView"
-        android:layout_below="@+id/listKnownDevices"
+        android:layout_marginTop="167dp"
+        android:layout_below="@+id/spinner"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -49,8 +50,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/spinner"
-        android:layout_below="@+id/bluetoothStatus"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="48dp" />
+        android:layout_below="@+id/listKnownDevices"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CONNECT!"
+        android:id="@+id/buttonConnect"
+        android:layout_marginTop="43dp"
+        android:layout_below="@+id/spinner"
+        android:layout_centerHorizontal="true"
+        android:onClick="onClickConnect"/>
 </RelativeLayout>

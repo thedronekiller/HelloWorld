@@ -8,8 +8,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,8 +28,8 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     public static final int BLUETOOTH_DISCOVERABLE_DURATION = 300;
+    private static final int REQUEST_COARSE_LOCATION_PERMISSIONS = 20;
     private TextView bluetoothStatus;
-    //private TextView listKnownDevices;
     private Spinner spinner;
     private ArrayAdapter<String> arrayAdapter;
     private TextView listBondedDevices;
@@ -54,16 +58,16 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, devices);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
-        arrayAdapter.add("TEST");
 
         adapter = BluetoothAdapter.getDefaultAdapter();
-
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        enableAccessCoarseLocation();
 
         if(adapter==null){
             bluetoothStatus.setText("Bluetooth not supported on this device");
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         String bondedDevices = "";
         Iterator<BluetoothDevice> it = devicesss.iterator();
-        try {
+        /*try {
             server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
         } catch (IOException e) {
             e.printStackTrace();
@@ -93,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             socket = it.next().createRfcommSocketToServiceRecord(uuid);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         while(it.hasNext()) {
             bondedDevices += it.next().getName() + "\n";
@@ -105,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     @Override
@@ -142,6 +145,23 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(discoverableIntent, BLUETOOTH_DISCOVERABLE_DURATION);
     }
 
+    private void enableAccessCoarseLocation(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                REQUEST_COARSE_LOCATION_PERMISSIONS);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode==REQUEST_COARSE_LOCATION_PERMISSIONS){
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+            }
+        }
+    }
+
     private void findBluetoothDevice(){
 
         receiver = new BroadcastReceiver() {
@@ -151,12 +171,12 @@ public class MainActivity extends AppCompatActivity {
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     devices.add(device.getName());
-                    arrayAdapter.add(device.getName());
                 }
             }
         };
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(receiver,filter);
+
 
     }
 
@@ -166,4 +186,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
+    public void onClickConnect(View view) {
+        //TODO: STUFF
+    }
 }
