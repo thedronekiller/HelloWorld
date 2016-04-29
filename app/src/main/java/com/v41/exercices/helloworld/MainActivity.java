@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
     @Override
     public void onMessageReceived(String message) {
         bluetoothStatus.setText(message);
-        ReadInputStreamTask taskClient = new ReadInputStreamTask(callback);
+        ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
         taskClient.execute(socket);
     }
 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by Utilisateur on 2016-04-29.
  */
-public class Server implements ServerAcceptConnectionTask.Callback, ConnectToServerTask.Callback {
+public class Server implements ServerAcceptConnectionTask.Callback, ConnectToServerTask.Callback, ReadInputStreamTask.Callback {
 
     private BluetoothSocket client;
 
@@ -19,7 +19,7 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
     }
 
     public void startRead(){
-        ReadInputStreamTask taskClient = new ReadInputStreamTask(callback);
+        ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
         taskClient.execute(client);
     }
 
@@ -48,5 +48,10 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
         if(succes.booleanValue()){
             startRead();
         }
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+
     }
 }
