@@ -94,10 +94,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
-
+        Set<BluetoothDevice> bondedDevices1 = adapter.getBondedDevices();
         String bondedDevices = "";
-        Iterator<BluetoothDevice> it = devicesss.iterator();
+        Iterator<BluetoothDevice> it = bondedDevices1.iterator();
+
         try {
             server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
         } catch (IOException e) {
@@ -179,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                         devices.add(device.getName());
                         try {
                             bluetoothDevices.put(device.getName(), device);
+                            arrayAdapter.notifyDataSetChanged();
                         } catch (Exception e){
                             e.printStackTrace();
                         }
@@ -201,12 +202,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickConnect(View view) {
         String name = spinner.getSelectedItem().toString();
-        int a = 0;
-        a++;
-//        try {
-//            socket = it.next().createRfcommSocketToServiceRecord(uuid);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            socket = bluetoothDevices.get(name).createRfcommSocketToServiceRecord(uuid);
+            adapter.cancelDiscovery();
+            socket.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
