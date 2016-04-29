@@ -175,11 +175,13 @@ public class MainActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if(!devices.contains(device.getName())){
+                    if(device != null && !devices.contains(device.getName())){
                         devices.add(device.getName());
-                        bluetoothDevices.put(device.getAddress(),device);
-                        int a = 0;
-                        a++;
+                        try {
+                            bluetoothDevices.put(device.getName(), device);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -198,6 +200,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickConnect(View view) {
+        String name = spinner.getSelectedItem().toString();
+        int a = 0;
+        a++;
 //        try {
 //            socket = it.next().createRfcommSocketToServiceRecord(uuid);
 //        } catch (IOException e) {
