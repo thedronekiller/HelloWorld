@@ -208,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
             socket = bluetoothDevices.get(name).createRfcommSocketToServiceRecord(uuid);
             adapter.cancelDiscovery();
             socket.connect();
+            ReadInputStreamTask taskClient = new ReadInputStreamTask();
+            taskClient.execute(socket);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -217,5 +219,7 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
     @Override
     public void onMessageReceived(String message) {
         bluetoothStatus.setText(message);
+        ReadInputStreamTask taskClient = new ReadInputStreamTask();
+        taskClient.execute(socket);
     }
 }
