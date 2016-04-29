@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,18 +41,21 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
     private List<String> devices;
+    private TreeMap<String,BluetoothDevice> bluetoothDevices;
     private BroadcastReceiver receiver;
-    UUID uuid;
+    private UUID uuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         uuid = new UUID(1024L,128L);
 
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
         spinner = (Spinner) findViewById(R.id.spinner);
         listBondedDevices = (TextView)findViewById(R.id.listBondedDevices);
+        bluetoothDevices = new TreeMap<>();
 
         devices = new ArrayList<String>();
 
@@ -60,7 +64,14 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(arrayAdapter);
 
         adapter = BluetoothAdapter.getDefaultAdapter();
+        Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
+        String bondedDevices = "";
+        Iterator<BluetoothDevice> it = devicesss.iterator();
+        while(it.hasNext()) {
+            bondedDevices += it.next().getName() + "\n";
+        }
+        listBondedDevices.setText(bondedDevices);
     }
 
     @Override
@@ -87,17 +98,11 @@ public class MainActivity extends AppCompatActivity {
 
         String bondedDevices = "";
         Iterator<BluetoothDevice> it = devicesss.iterator();
-        /*try {
+        try {
             server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        try {
-            socket = it.next().createRfcommSocketToServiceRecord(uuid);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
 
         while(it.hasNext()) {
             bondedDevices += it.next().getName() + "\n";
@@ -170,7 +175,12 @@ public class MainActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    devices.add(device.getName());
+                    if(!devices.contains(device.getName())){
+                        devices.add(device.getName());
+                        bluetoothDevices.put(device.getAddress(),device);
+                        int a = 0;
+                        a++;
+                    }
                 }
             }
         };
@@ -184,9 +194,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        receiver = null;
     }
 
     public void onClickConnect(View view) {
-        //TODO: STUFF
+//        try {
+//            socket = it.next().createRfcommSocketToServiceRecord(uuid);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }
