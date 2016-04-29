@@ -19,7 +19,7 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
     }
 
     public void startRead(){
-        ReadInputStreamTask taskClient = new ReadInputStreamTask();
+        ReadInputStreamTask taskClient = new ReadInputStreamTask(callback);
         taskClient.execute(client);
     }
 

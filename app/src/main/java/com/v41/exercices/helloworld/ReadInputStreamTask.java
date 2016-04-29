@@ -12,6 +12,11 @@ import java.io.IOException;
 public class ReadInputStreamTask extends AsyncTask<BluetoothSocket,Void,String>{
 
     private Callback callback;
+
+    public ReadInputStreamTask(Callback callback) {
+        this.callback = callback;
+    }
+
     /**
      * Override this method to perform a computation on a background thread. The
      * specified parameters are the parameters passed to {@link #execute}

@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -211,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
     @Override
     public void onMessageReceived(String message) {
         bluetoothStatus.setText(message);
-        ReadInputStreamTask taskClient = new ReadInputStreamTask();
+        ReadInputStreamTask taskClient = new ReadInputStreamTask(callback);
         taskClient.execute(socket);
     }
 }
