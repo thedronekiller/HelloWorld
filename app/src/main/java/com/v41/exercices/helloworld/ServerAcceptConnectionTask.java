@@ -14,6 +14,10 @@ public class ServerAcceptConnectionTask extends AsyncTask<BluetoothAdapter,Void,
     private BluetoothServerSocket mmServerSocket;
     private Callback callback;
 
+    public ServerAcceptConnectionTask(Callback callback) {
+        this.callback = callback;
+    }
+
     /**
      * Override this method to perform a computation on a background thread. The
      * specified parameters are the parameters passed to {@link #execute}

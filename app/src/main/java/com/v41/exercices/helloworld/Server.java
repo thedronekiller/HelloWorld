@@ -14,7 +14,7 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
     private BluetoothSocket client;
 
     public Server(BluetoothAdapter adapter) {
-        ServerAcceptConnectionTask task = new ServerAcceptConnectionTask();
+        ServerAcceptConnectionTask task = new ServerAcceptConnectionTask(this);
         task.execute(adapter);
     }
 
