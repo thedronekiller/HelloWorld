@@ -204,16 +204,8 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
 
     public void onClickConnect(View view) {
         String name = spinner.getSelectedItem().toString();
-        try {
-            socket = bluetoothDevices.get(name).createRfcommSocketToServiceRecord(uuid);
-            adapter.cancelDiscovery();
-            socket.connect();
-            ReadInputStreamTask taskClient = new ReadInputStreamTask();
-            taskClient.execute(socket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        adapter.cancelDiscovery();
+        server.onConnectToOtherServer(bluetoothDevices.get(name));
     }
 
     @Override
