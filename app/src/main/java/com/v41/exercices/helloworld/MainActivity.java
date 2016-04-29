@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinner;
     private ArrayAdapter<String> arrayAdapter;
     private TextView listBondedDevices;
+    private View rootView;
 
     private BluetoothSocket socket;
     private BluetoothServerSocket server;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
         spinner = (Spinner) findViewById(R.id.spinner);
         listBondedDevices = (TextView)findViewById(R.id.listBondedDevices);
+        rootView = (View)findViewById(R.id.rootView);
         bluetoothDevices = new TreeMap<>();
 
         devices = new ArrayList<String>();
@@ -161,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if(requestCode==REQUEST_COARSE_LOCATION_PERMISSIONS){
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-
+            if (grantResults.length == 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED){
+                Snackbar.make(rootView,"The app cannot work without the coarse location permission",Snackbar.LENGTH_INDEFINITE).show();
             }
         }
     }
@@ -176,9 +179,10 @@ public class MainActivity extends AppCompatActivity {
                 if(BluetoothDevice.ACTION_FOUND.equals(action)){
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     if(device != null && !devices.contains(device.getName())){
-                        devices.add(device.getName());
+
                         try {
                             bluetoothDevices.put(device.getName(), device);
+                            devices.add(device.getName());
                             arrayAdapter.notifyDataSetChanged();
                         } catch (Exception e){
                             e.printStackTrace();
