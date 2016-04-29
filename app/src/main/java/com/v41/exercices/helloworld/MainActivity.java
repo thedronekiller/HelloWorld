@@ -2,7 +2,6 @@ package com.v41.exercices.helloworld;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +28,8 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int BLUETOOTH_DISCOVERABLE_DURATION = 300;
+    //0 veut dire indéfinie
+    public static final int BLUETOOTH_DISCOVERABLE_DURATION = 0;
     private static final int REQUEST_COARSE_LOCATION_PERMISSIONS = 20;
     private TextView bluetoothStatus;
     private Spinner spinner;
@@ -38,14 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private View rootView;
 
     private BluetoothSocket socket;
-    private BluetoothServerSocket server;
+    private Server server;
 
     private final int REQUEST_BLUETOOTH_ENABLE = 20;
     private BluetoothAdapter adapter;
     private List<String> devices;
     private TreeMap<String,BluetoothDevice> bluetoothDevices;
     private BroadcastReceiver receiver;
-    private UUID uuid;
+    public static  UUID uuid;
+    public static final String MAGIE = "Magie";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(arrayAdapter);
 
         adapter = BluetoothAdapter.getDefaultAdapter();
+        server = new Server(adapter);
+
         Set<BluetoothDevice> devicesss = adapter.getBondedDevices();
 
         String bondedDevices = "";
@@ -101,11 +104,6 @@ public class MainActivity extends AppCompatActivity {
         String bondedDevices = "";
         Iterator<BluetoothDevice> it = bondedDevices1.iterator();
 
-        try {
-            server = adapter.listenUsingRfcommWithServiceRecord("Magie",uuid);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         while(it.hasNext()) {
             bondedDevices += it.next().getName() + "\n";
