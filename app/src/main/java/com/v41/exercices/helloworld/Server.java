@@ -18,6 +18,11 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
         task.execute(adapter);
     }
 
+    public void startRead(){
+        ReadInputStreamTask taskClient = new ReadInputStreamTask();
+        taskClient.execute(client);
+    }
+
     @Override
     public void onConnectionAccepted(BluetoothSocket socket) {
         client = socket;
@@ -41,8 +46,7 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
     @Override
     public void onConnectionDone(Boolean succes) {
         if(succes.booleanValue()){
-            ReadInputStreamTask taskClient = new ReadInputStreamTask();
-            taskClient.execute(client);
+            startRead();
         }
     }
 }
