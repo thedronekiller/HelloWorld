@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ReadInputStreamTask.Callback {
 
     //0 veut dire indéfinie
     public static final int BLUETOOTH_DISCOVERABLE_DURATION = 0;
@@ -212,5 +212,10 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+        bluetoothStatus.setText(message);
     }
 }
