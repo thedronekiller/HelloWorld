@@ -3,6 +3,7 @@ package com.v41.exercices.helloworld;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -15,6 +16,12 @@ public class ConnectToServerTask extends AsyncTask<BluetoothSocket,Void,Boolean>
 
     public ConnectToServerTask(Callback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.v("Task","OnPreExecute");
     }
 
     /**
@@ -31,8 +38,12 @@ public class ConnectToServerTask extends AsyncTask<BluetoothSocket,Void,Boolean>
      * @see #onPostExecute
      * @see #publishProgress
      */
+
+
     @Override
     protected Boolean doInBackground(BluetoothSocket... params) {
+
+        Log.v("TASK", "ConnectToServer DoInBackground");
         try {
             params[0].connect();
             return true;
@@ -54,12 +65,13 @@ public class ConnectToServerTask extends AsyncTask<BluetoothSocket,Void,Boolean>
      * @see #onCancelled(Object)
      */
     @Override
-    protected void onPostExecute(Boolean b) {
-        super.onPostExecute(b);
-        callback.onConnectionDone(b);
+    protected void onPostExecute(Boolean success) {
+        //super.onPostExecute(b);
+        Log.v("Task", "ConnectToServer OnPostExecute");
+        callback.onConnectionDone(success);
     }
 
     public interface Callback{
-        void onConnectionDone(Boolean succes);
+        void onConnectionDone(Boolean success);
     }
 }

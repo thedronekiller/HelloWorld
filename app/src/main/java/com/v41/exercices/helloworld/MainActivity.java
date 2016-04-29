@@ -8,16 +8,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,11 +28,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements ReadInputStreamTask.Callback {
+public class MainActivity extends AppCompatActivity implements ReadInputStreamTask.Callback, ConnectToServerTask.Callback,ServerAcceptConnectionTask.Callback{
 
     //0 veut dire indéfinie
     public static final int BLUETOOTH_DISCOVERABLE_DURATION = 0;
     private static final int REQUEST_COARSE_LOCATION_PERMISSIONS = 20;
+    private BluetoothSocket client;
     private TextView bluetoothStatus;
     private Spinner spinner;
     private ArrayAdapter<String> arrayAdapter;
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
         bluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
         spinner = (Spinner) findViewById(R.id.spinner);
         listBondedDevices = (TextView)findViewById(R.id.listBondedDevices);
-        rootView = (View)findViewById(R.id.rootView);
+        rootView = findViewById(R.id.rootView);
         bluetoothDevices = new TreeMap<>();
 
         devices = new ArrayList<String>();
@@ -202,15 +206,49 @@ public class MainActivity extends AppCompatActivity implements ReadInputStreamTa
     }
 
     public void onClickConnect(View view) {
+        Log.v("Main","Click");
         String name = spinner.getSelectedItem().toString();
         adapter.cancelDiscovery();
-        server.onConnectToOtherServer(bluetoothDevices.get(name));
+        //server.onConnectToOtherServer(bluetoothDevices.get(name));
+        try {
+            client = bluetoothDevices.get(name).createRfcommSocketToServiceRecord(MainActivity.uuid);
+            ConnectToServerTask task = new ConnectToServerTask(this);
+            //task.execute(client);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,client);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void onMessageReceived(String message) {
         bluetoothStatus.setText(message);
-        ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
-        taskClient.execute(socket);
+        int i=0;
+        //ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
+        //taskClient.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,socket);
+    }
+
+    @Override
+    public void onConnectionDone(Boolean success) {
+        int i=0;
+        //server.startRead();
+        ServerAcceptConnectionTask connectionTask = new ServerAcceptConnectionTask(this);
+        connectionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,adapter);
+        bluetoothStatus.setText("Connection request sent");
+        /*ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
+        String name = spinner.getSelectedItem().toString();
+        try {
+            client = bluetoothDevices.get(name).createRfcommSocketToServiceRecord(MainActivity.uuid);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        taskClient.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,client);*/
+    }
+
+    @Override
+    public void onConnectionAccepted(BluetoothSocket socket) {
+        bluetoothStatus.setText("Connected to the selected device");
+        server.startRead(socket);
     }
 }

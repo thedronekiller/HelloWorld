@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
 import android.telecom.Call;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -16,6 +17,7 @@ public class ServerAcceptConnectionTask extends AsyncTask<BluetoothAdapter,Void,
 
     public ServerAcceptConnectionTask(Callback callback) {
         this.callback = callback;
+
     }
 
     /**
@@ -37,17 +39,20 @@ public class ServerAcceptConnectionTask extends AsyncTask<BluetoothAdapter,Void,
 
         // Use a temporary object that is later assigned to mmServerSocket,
         // because mmServerSocket is final
+        Log.v("TASK","ServerAcceptConnection doInBackground");
         BluetoothServerSocket tmp = null;
         try {
             // MY_UUID is the app's UUID string, also used by the client code
             tmp = params[0].listenUsingRfcommWithServiceRecord(MainActivity.MAGIE,MainActivity.uuid);
         } catch (IOException e) { }
         mmServerSocket = tmp;
+
         BluetoothSocket socket = null;
         // Keep listening until exception occurs or a socket is returned
         while (true) {
             try {
                 socket = mmServerSocket.accept();
+                socket.getOutputStream().write("Allo".getBytes(),0,4);
             } catch (IOException e) {
                 break;
             }
@@ -79,6 +84,7 @@ public class ServerAcceptConnectionTask extends AsyncTask<BluetoothAdapter,Void,
     @Override
     protected void onPostExecute(BluetoothSocket bluetoothSocket) {
         super.onPostExecute(bluetoothSocket);
+        Log.v("TASK","ServerAcceptConnection onPostExecute");
         try {
             mmServerSocket.close();
         } catch (IOException e) {

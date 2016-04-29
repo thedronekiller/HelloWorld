@@ -3,6 +3,7 @@ package com.v41.exercices.helloworld;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.AsyncTask;
 
 import java.io.IOException;
 
@@ -15,12 +16,14 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
 
     public Server(BluetoothAdapter adapter) {
         ServerAcceptConnectionTask task = new ServerAcceptConnectionTask(this);
-        task.execute(adapter);
+        //task.execute(adapter);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,adapter);
     }
 
-    public void startRead(){
+    public void startRead(BluetoothSocket otherDevice){
         ReadInputStreamTask taskClient = new ReadInputStreamTask(this);
-        taskClient.execute(client);
+        //taskClient.execute(client);
+        taskClient.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,otherDevice);
     }
 
     @Override
@@ -28,12 +31,13 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
         client = socket;
         try {
             client.getOutputStream().write("Allo".getBytes(),0,4);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void onConnectToOtherServer(BluetoothDevice deviceToConnect){
+    /*public void onConnectToOtherServer(BluetoothDevice deviceToConnect){
         try {
             client = deviceToConnect.createRfcommSocketToServiceRecord(MainActivity.uuid);
             ConnectToServerTask task = new ConnectToServerTask(this);
@@ -41,13 +45,13 @@ public class Server implements ServerAcceptConnectionTask.Callback, ConnectToSer
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Override
-    public void onConnectionDone(Boolean succes) {
-        if(succes.booleanValue()){
-            startRead();
-        }
+    public void onConnectionDone(Boolean success) {
+        //if(succes.booleanValue()){
+            //startRead();
+        //}
     }
 
     @Override
